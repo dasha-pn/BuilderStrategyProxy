@@ -3,6 +3,7 @@ package lab11.Task3;
 import javax.swing.JFrame;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import java.awt.GraphicsEnvironment;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,8 +12,16 @@ import java.util.Random;
 public class RealImage implements MyImage {
     private JFrame frame;
     private ConfettiPanel confettiPanel;
+    private final String filename;
 
     public RealImage(String filename) {
+        this.filename = filename;
+
+        if (GraphicsEnvironment.isHeadless()) {
+            System.out.println("Headless environment detected, skipping GUI for " + filename);
+            return;
+        }
+
         frame = new JFrame("Image with Confetti");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
@@ -40,13 +49,12 @@ public class RealImage implements MyImage {
         int height = Math.min(size.height, 300);
         frame.setSize(width, height);
         frame.setResizable(false);
-
     }
 
     static class ConfettiPanel extends JComponent {
         private final int NUM_CONFETTI = 100;
         private final Color[] COLORS = {
-            Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.MAGENTA, Color.ORANGE
+                Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.MAGENTA, Color.ORANGE
         };
         private final Random rand = new Random();
         private int[] x = new int[NUM_CONFETTI];
@@ -68,7 +76,7 @@ public class RealImage implements MyImage {
             running = true;
             setVisible(true);
             new Timer(30, e -> {
-                if (!running) ((Timer)e.getSource()).stop();
+                if (!running) ((Timer) e.getSource()).stop();
                 for (int i = 0; i < NUM_CONFETTI; i++) {
                     y[i] += 5 + rand.nextInt(5);
                     if (y[i] > getHeight()) {
@@ -97,6 +105,10 @@ public class RealImage implements MyImage {
 
     @Override
     public void display() {
-        frame.setVisible(true);
+        if (frame != null) {
+            frame.setVisible(true);
+        } else {
+            System.out.println("display() called in headless mode for " + filename);
+        }
     }
 }
